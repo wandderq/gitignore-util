@@ -31,13 +31,18 @@ class Gitignore:
             'show',
             help='shows all lines from .gitignore'
         )
+        show_parser.add_argument(
+            '-a', '--all',
+            action='store_true',
+            help='shows comments too'
+        )
     
     
     def add_lines(self, gitignore_file: Path, args: Namespace) -> int:
-        with open(gitignore_file.absolute(), 'r', encoding='utf-8') as file:
+        with open(gitignore_file, 'r', encoding='utf-8') as file:
             raw_file_lines = file.readlines()
             
-            # getting lines from args and from file:
+            # getting lines from args and from file
             file_lines = [file_line.strip() for file_line in raw_file_lines if file_line.strip() and not file_line.strip().startswith('#')]
             args_lines = list(set([arg_line.strip() for arg_line in args.lines]))
             
@@ -46,7 +51,7 @@ class Gitignore:
             set_newline = last_line.strip() and not last_line.endswith('\n')
         
             
-        with open(gitignore_file.absolute(), 'a', encoding='utf-8') as file:
+        with open(gitignore_file, 'a', encoding='utf-8') as file:
             # writing \n
             if set_newline:
                 file.write('\n')
@@ -78,6 +83,24 @@ class Gitignore:
         return gitignore_file.absolute()
     
     
+    def show_lines(self, gitignore_file: Path, args: Namespace) -> int:
+        with open(gitignore_file, 'r', encoding='utf-8') as file:
+            # getting lines from file
+            lines = [
+                (file_line.strip(), i)
+                for i, file_line in enumerate(file.readlines(), start=1)
+                if file_line.strip()
+            ]
+            
+            for line, i in lines:
+                is_comment = line.startswith('#')
+                if not is_comment or args.all:
+                    color = '\033[32m' if not is_comment else '\033[0m'
+                    print(f'{color}.gitignore:{i}:\033[0m {line}')
+        
+        return 0
+    
+            
     def run(self) -> None | int:
         args = self.arg_parser.parse_args()
         
@@ -88,6 +111,9 @@ class Gitignore:
         
         if args.command == 'add':
             return self.add_lines(gitignore_file, args)
+        
+        if args.command == 'show':
+            return self.show_lines(gitignore_file, args)
 
 
 def run_cli():
