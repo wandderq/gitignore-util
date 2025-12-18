@@ -1,4 +1,4 @@
-from argparse import ArgumentParser
+from argparse import ArgumentParser, Namespace
 from pathlib import Path
 
 import sys
@@ -33,47 +33,61 @@ class Gitignore:
         )
     
     
-    
-    def run(self) -> None | int:
-        args = self.arg_parser.parse_args()
+    def add_lines(self, gitignore_file: Path, args: Namespace) -> int:
+        with open(gitignore_file.absolute(), 'r', encoding='utf-8') as file:
+            raw_file_lines = file.readlines()
+            
+            # getting lines from args and from file:
+            file_lines = [file_line.strip() for file_line in raw_file_lines if file_line.strip() and not file_line.strip().startswith('#')]
+            args_lines = list(set([arg_line.strip() for arg_line in args.lines]))
+            
+            # checking if file endswith \n
+            last_line = raw_file_lines[-1]
+            set_newline = last_line.strip() and not last_line.endswith('\n')
         
+            
+        with open(gitignore_file.absolute(), 'a', encoding='utf-8') as file:
+            # writing \n
+            if set_newline:
+                file.write('\n')
+            
+            # adding new lines only if they are not exist
+            for line in args_lines:
+                if not line in file_lines:
+                    file.write(line + '\n')
+                    print(f'\033[32mLine added: {line}')
+                
+                else:
+                    print(f'\033[33mLine alreday exists: {line}')
+            
+            return 0
+    
+    
+    def get_gitignore_file(self) -> Path | None:
         gitignore_file = Path('.gitignore')
+        
         if not gitignore_file.exists():
             print(f'\033[31m.gitignore not found in {os.getcwd()}\033[0m')
-            create = input('create it? (default: n) (y/n): ').strip().lower() in ['y', 'ye', 'yes', '1']
+            create = input('Create it? (default: n) (y/n): ').strip().lower() in ['y', 'ye', 'yes', '1']
             if create:
                 gitignore_file.touch()
             
             else:
-                return 1
+                return
+        
+        return gitignore_file.absolute()
+    
+    
+    def run(self) -> None | int:
+        args = self.arg_parser.parse_args()
+        
+        gitignore_file = self.get_gitignore_file()
+        if gitignore_file is None:
+            return 1
         
         
         if args.command == 'add':
-            with open(gitignore_file.absolute(), 'r', encoding='utf-8') as file:
-                raw_file_lines = file.readlines()
-                
-                # getting lines from args and from file:
-                file_lines = [file_line.strip() for file_line in raw_file_lines if file_line.strip() and not file_line.strip().startswith('#')]
-                args_lines = list(set([arg_line.strip() for arg_line in args.lines]))
-                
-                # checking if file endswith \n
-                last_line = raw_file_lines[-1]
-                set_newline = last_line.strip() and not last_line.endswith('\n')
-            
-            
-            with open(gitignore_file.absolute(), 'a', encoding='utf-8') as file:
-                if set_newline:
-                    file.write('\n')
-                
-                for line in args_lines:
-                    if not line in file_lines:
-                        file.write(line + '\n')
-                        print(f'\033[32mLine added: {line}')
-                    
-                    else:
-                        print(f'\033[33mLine alreday exists: {line}')
-                
-                return 0
+            return self.add_lines(gitignore_file, args)
 
 
 def run_cli():
