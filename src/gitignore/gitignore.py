@@ -8,7 +8,8 @@ import os
 class Gitignore:
     def __init__(self) -> None:
         self.arg_parser = ArgumentParser(
-            description='.gitignore fast redactor'
+            description='.gitignore fast redactor',
+            epilog='github: https://github.com/wandderq/gitignore-util'
         )
         
         subparsers = self.arg_parser.add_subparsers(
@@ -35,6 +36,16 @@ class Gitignore:
             '-a', '--all',
             action='store_true',
             help='shows comments too'
+        )
+        
+        rm_parser = subparsers.add_parser(
+            'rm',
+            help='remove lines from .gitignore'
+        )
+        rm_parser.add_argument(
+            'lines',
+            nargs='+',
+            help='lines to remove, ex.: gitignore rm .python-version'
         )
     
     
@@ -68,21 +79,6 @@ class Gitignore:
             return 0
     
     
-    def get_gitignore_file(self) -> Path | None:
-        gitignore_file = Path('.gitignore')
-        
-        if not gitignore_file.exists():
-            print(f'\033[31m.gitignore not found in {os.getcwd()}\033[0m')
-            create = input('Create it? (default: n) (y/n): ').strip().lower() in ['y', 'ye', 'yes', '1']
-            if create:
-                gitignore_file.touch()
-            
-            else:
-                return
-        
-        return gitignore_file.absolute()
-    
-    
     def show_lines(self, gitignore_file: Path, args: Namespace) -> int:
         with open(gitignore_file, 'r', encoding='utf-8') as file:
             # getting lines from file
@@ -99,7 +95,43 @@ class Gitignore:
                     print(f'{color}.gitignore:{i}:\033[0m {line}')
         
         return 0
+   
+   
+    def rm_lines(self, gitignore_file: Path, args: Namespace) -> int:
+        with open(gitignore_file, 'r', encoding='utf-8') as file:
+            file_content = [file_line.strip() for file_line in file.readlines()]
+            args_lines = list(set([arg_line.strip() for arg_line in args.lines]))
+            
+            for arg_line in args_lines:
+                if arg_line in file_content:
+                    file_content.remove(arg_line)
+                    print(f'Removed: {arg_line}')
+                
+                else:
+                    print(f'Line {arg_line} doesn\'t exist in .gitignore')
+        
+        
+        with open(gitignore_file, 'w', encoding='utf-8') as file:
+            file.write('\n'.join(file_content))
+        
+        
+        return 0
     
+    
+    def get_gitignore_file(self) -> Path | None:
+        gitignore_file = Path('.gitignore')
+        
+        if not gitignore_file.exists():
+            print(f'\033[31m.gitignore not found in {os.getcwd()}\033[0m')
+            create = input('Create it? (default: n) (y/n): ').strip().lower() in ['y', 'ye', 'yes', '1']
+            if create:
+                gitignore_file.touch()
+            
+            else:
+                return
+        
+        return gitignore_file.absolute()
+   
             
     def run(self) -> None | int:
         args = self.arg_parser.parse_args()
@@ -114,6 +146,9 @@ class Gitignore:
         
         if args.command == 'show':
             return self.show_lines(gitignore_file, args)
+        
+        if args.command == 'rm':
+            return self.rm_lines(gitignore_file, args)
 
 
 def run_cli():
