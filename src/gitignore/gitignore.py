@@ -7,45 +7,44 @@ import os
 
 class Gitignore:
     def __init__(self) -> None:
-        self.arg_parser = ArgumentParser(
-            description='.gitignore fast redactor',
-            epilog='github: https://github.com/wandderq/gitignore-util'
+        self.argument_parser = ArgumentParser(
+            description='Quick editor for .gitignore files',
+            epilog='GitHub: https://github.com/wandderq/gitignore-util'
         )
-        
-        subparsers = self.arg_parser.add_subparsers(
+
+        subparsers = self.argument_parser.add_subparsers(
             dest='command',
-            required=True,
             metavar='[command]'
         )
-        
+
         add_parser = subparsers.add_parser(
             'add',
-            help='add new line to the .gitignore'
+            help='add new entries to .gitignore'
         )
         add_parser.add_argument(
             'lines',
             nargs='+',
-            help='lines to add, ex.: gitignore add .vscode .venv'
+            help='entries to add, e.g.: gitignore add .vscode .venv'
         )
-        
+
         show_parser = subparsers.add_parser(
             'show',
-            help='shows all lines from .gitignore'
+            help='display all entries from .gitignore'
         )
         show_parser.add_argument(
             '-a', '--all',
             action='store_true',
-            help='shows comments too'
+            help='include comments in the output'
         )
-        
+
         rm_parser = subparsers.add_parser(
             'rm',
-            help='remove lines from .gitignore'
+            help='remove entries from .gitignore'
         )
         rm_parser.add_argument(
             'lines',
             nargs='+',
-            help='lines to remove, ex.: gitignore rm .python-version'
+            help='entries to remove, e.g.: gitignore rm .python-version'
         )
     
     
@@ -134,7 +133,7 @@ class Gitignore:
    
             
     def run(self) -> None | int:
-        args = self.arg_parser.parse_args()
+        args = self.argument_parser.parse_args()
         
         gitignore_file = self.get_gitignore_file()
         if gitignore_file is None:
@@ -144,12 +143,14 @@ class Gitignore:
         if args.command == 'add':
             return self.add_lines(gitignore_file, args)
         
-        if args.command == 'show':
+        elif args.command == 'show':
             return self.show_lines(gitignore_file, args)
         
-        if args.command == 'rm':
+        elif args.command == 'rm':
             return self.rm_lines(gitignore_file, args)
-
+        
+        else:
+            self.argument_parser.print_usage()
 
 def run_cli():
     app = Gitignore()
