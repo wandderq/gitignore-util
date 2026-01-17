@@ -150,7 +150,8 @@ class Gitignore:
             return self.rm_lines(gitignore_file, args)
         
         else:
-            self.argument_parser.print_usage()
+            self.argument_parser.print_help()
+
 
 def run_cli():
     app = Gitignore()
