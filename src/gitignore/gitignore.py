@@ -159,6 +159,10 @@ class GitignoreCLI:
 
         elif args.command == 'load':
             for template_name in args.templates:
+                if not template_name in GITIGNORE_TEMPLATES:
+                    logger.error(f'Template not found: {template_name}')
+                    continue
+
                 logger.info(f'Loading template: {template_name}')
                 entries = load_template(template_name, with_comments=args.all)
                 manager.add_entries(entries, mode='a')
@@ -169,10 +173,10 @@ class GitignoreCLI:
         
 
 def run_cli():
-    # try:
+    try:
         app = GitignoreCLI()
         return app.run()
     
-    # except Exception as e:
-    #     root_logger.error(f'error: {str(e)}. cause: {str(e.__cause__)}')
+    except Exception as e:
+        root_logger.error(f'error: {str(e)}. cause: {str(e.__cause__)}')
         
