@@ -1,24 +1,24 @@
-# gitignore
-gitignore - это простая утилита для управления .gitignore файлом вашего проекта
-
+# gitignore-util
+gitignore-util - это утилита для быстрого управления .gitignore файлами в проекте
 
 ## Возможности
-- Создание новых записей: `gitignore add .vscode .venv`
-- Просмотр текущих записей: `gitignore show`
-- Удаление записей: `gitignore rm .python-version`
+- Создание и удаление новых записей: `gitignore add/rm .venv`
+- Скачивание готовых макетов .gitignore: `gitignore load C Cmake`
+- Просмотр записей в файле: `gitignore show --all`
 
 ## Установка
-Утилита устанавливается как pip-пакет, так что вы можете использовать pipx
-```bash
-pip install git+https://github.com/wandderq/gitignore-util@main
-```
+1. Через pip/pipx (проще всего)
+    ```bash
+    pipx install git+https://github.com/wandderq/gitignore-util@main
+    ```
 
-Так же, можно установить из исходников:
-```
-git clone https://github.com/wandderq/gitignore-util
-cd gitignore-util
-pip install .
-```
+2. Из исходного кода
+    ```bash
+    git clone https://github.com/wandderq/gitignore-util@main
+    cd gitignore-util
+    pip install . # используйте -e для сборки в режиме разработки
+    ```
+
 
 ## Лицензия
-Этот проект распространяется под лицензией [MIT](LICENSE)
+Эта утилита распространяется под [MIT лицензией](https://github.com/wandderq/gitignore-util/blob/main/LICENSE)

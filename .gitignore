@@ -9,3 +9,4 @@ wheels/
 build/
 dist/
 .python-version
+uv.lock
