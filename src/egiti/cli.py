@@ -20,23 +20,78 @@ class EGITICLI:
             required=True
         )
 
-        add_parser = subparsers.add_parser('add', help='add new entries to .gitignore')
-        add_parser.add_argument('entries', nargs='+', help='entries to add, e.g.: gitignore add .vscode .venv')
-        add_parser.add_argument('-m', '--mode', choices=['a', 'w'], default='a', help='write mode. default: append')
+        # global args
+        self.argument_parser.add_argument(
+            '-v', '--verbose',
+            action='store_true',
+            help='verbose mode'
+        )
+        self.argument_parser.add_argument(
+            '-i', '--input-file',
+            default='.gitignore',
+            help='.gitignore filepath, default: .gitignore'
+        )
 
-        rm_parser = subparsers.add_parser('rm', help='remove entries from .gitignore')
-        rm_parser.add_argument('entries', nargs='+', help='entries to remove, e.g.: gitignore rm .python-version')
+        # egiti add
+        add_parser = subparsers.add_parser(
+            'add',
+            help='add new entries to .gitignore'
+        )
+        add_parser.add_argument(
+            'entries',
+            nargs='+',
+            help='entries to add, e.g.: egiti add .vscode .venv'
+        )
+        add_parser.add_argument(
+            '-m', '--mode',
+            choices=['a', 'w'],
+            default='a',
+            help='write mode. default: append'
+        )
 
-        show_parser = subparsers.add_parser('show', help='display all entries from .gitignore')
-        show_parser.add_argument('-a', '--all', action='store_true', help='include comments in the output')
-        show_parser.add_argument('-t', '--templates', action='store_true', help='show available templates')
+        # egiti rm
+        rm_parser = subparsers.add_parser(
+            'rm',
+            help='remove entries from .gitignore'
+        )
+        rm_parser.add_argument(
+            'entries',
+            nargs='+',
+            help='entries to remove, e.g.: egiti rm .python-version'
+        )
 
-        load_parser = subparsers.add_parser('load', help='load .gitignore templates from https://github.com/github/gitignore')
-        load_parser.add_argument('templates', nargs='+', help='templates to load, see gitignore show -t')
-        load_parser.add_argument('-a', '--all', action='store_true', help='load with comments')
+        # egiti show
+        show_parser = subparsers.add_parser(
+            'show',
+            help='display all entries from .gitignore'
+        )
+        show_parser.add_argument(
+            '-a', '--all',
+            action='store_true',
+            help='include comments in the output'
+        )
+        show_parser.add_argument(
+            '-t', '--templates',
+            action='store_true',
+            help='show available templates'
+        )
 
-        self.argument_parser.add_argument('-v', '--verbose', action='store_true', help='verbose mode')
-        self.argument_parser.add_argument('-i', '--input-file', default='.gitignore', help='.gitignore filepath, default: .gitignore')
+        # egiti load
+        load_parser = subparsers.add_parser(
+            'load',
+            help='load .gitignore templates from https://github.com/github/egiti'
+        )
+        load_parser.add_argument(
+            'templates',
+            nargs='+',
+            help='templates to load, see egiti show -t'
+        )
+        load_parser.add_argument(
+            '-a', '--all',
+            action='store_true',
+            help='load with comments'
+        )
+
 
 
 
@@ -56,7 +111,7 @@ class EGITICLI:
 
         if args.command == 'add':
             manager.add_entries(args_entries, args.mode)
-            logger.info('Done!')        
+            logger.info('Done!')
 
         elif args.command == 'rm':
             manager.remove_entries(args_entries)
@@ -74,7 +129,7 @@ class EGITICLI:
 
         elif args.command == 'load':
             for template_name in args.templates:
-                if not template_name in GITIGNORE_TEMPLATES:
+                if template_name not in GITIGNORE_TEMPLATES:
                     logger.error(f'Template not found: {template_name}')
                     continue
 
