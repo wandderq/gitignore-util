@@ -1,12 +1,11 @@
-from argparse import ArgumentParser, Namespace
-from .template_loader import GITIGNORE_TEMPLATES, load_template
+from argparse import ArgumentParser
+from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
 from typing import Literal
 from pathlib import Path
 
 import colorlog as clg
 import logging as lg
 import sys
-import os
 
 
 root_logger = lg.getLogger('gitignore')
