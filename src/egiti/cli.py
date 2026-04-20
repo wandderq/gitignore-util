@@ -123,7 +123,7 @@ class EGITICLI:
                     print(f'{color}{i}: {entry}\033[0m', flush=True)
             
             else:
-                print(f"available templates: {', '.join(GITIGNORE_TEMPLATES.keys())}")
+                print(f"Available templates: {', '.join(GITIGNORE_TEMPLATES.keys())}")
 
         elif args.command == 'load':
             for template_name in args.templates:
