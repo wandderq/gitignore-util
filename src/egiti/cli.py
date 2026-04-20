@@ -16,7 +16,7 @@ class EGITICLI:
         subparsers = self.argument_parser.add_subparsers(
             dest='command',
             metavar='[command]',
-            help='command to do',
+            help='Available commands',
             required=True
         )
 
@@ -24,75 +24,73 @@ class EGITICLI:
         self.argument_parser.add_argument(
             '-v', '--verbose',
             action='store_true',
-            help='verbose mode'
+            help='Verbose mode'
         )
         self.argument_parser.add_argument(
-            '-i', '--input-file',
+            '-i', '--input',
             default='.gitignore',
-            help='.gitignore filepath, default: .gitignore'
+            help='Gitignore file path (default: .gitignore)'
         )
 
         # egiti add
         add_parser = subparsers.add_parser(
             'add',
-            help='add new entries to .gitignore'
+            help='Add new entries to .gitignore'
         )
         add_parser.add_argument(
             'entries',
             nargs='+',
-            help='entries to add, e.g.: egiti add .vscode .venv'
+            help='Entries to add (e.g.: egiti add .venv)'
         )
         add_parser.add_argument(
             '-m', '--mode',
             choices=['a', 'w'],
             default='a',
-            help='write mode. default: append'
+            help='File mode (default: append)'
         )
 
         # egiti rm
         rm_parser = subparsers.add_parser(
             'rm',
-            help='remove entries from .gitignore'
+            help='Remove entries from .gitignore'
         )
         rm_parser.add_argument(
             'entries',
             nargs='+',
-            help='entries to remove, e.g.: egiti rm .python-version'
+            help='Entries to remove (e.g.: egiti rm .vscode)'
         )
 
         # egiti show
         show_parser = subparsers.add_parser(
             'show',
-            help='display all entries from .gitignore'
+            help='Display all entries from .gitignore'
         )
         show_parser.add_argument(
             '-a', '--all',
             action='store_true',
-            help='include comments in the output'
+            help='Include comments in the output'
         )
         show_parser.add_argument(
             '-t', '--templates',
             action='store_true',
-            help='show available templates'
+            help='Show available templates'
         )
 
         # egiti load
         load_parser = subparsers.add_parser(
             'load',
-            help='load .gitignore templates from https://github.com/github/egiti'
+            help='Load .gitignore templates'
         )
         load_parser.add_argument(
             'templates',
             nargs='+',
-            help='templates to load, see egiti show -t'
+            help='Templates to load (see egiti show -t)'
         )
         load_parser.add_argument(
             '-a', '--all',
             action='store_true',
-            help='load with comments'
+            help='Load with comments'
         )
-
-
 
 
     def run(self) -> None | int:
