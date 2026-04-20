@@ -1,29 +1,9 @@
-from argparse import ArgumentParser
-from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
-from egiti.core import GitignoreManager
-
-import colorlog as clg
 import logging as lg
-import sys
+from argparse import ArgumentParser
 
-
-root_logger = lg.getLogger('gitignore')
-root_logger.handlers.clear()
-root_logger.setLevel(lg.INFO)
-
-stream_handler = lg.StreamHandler(stream=sys.stdout)
-stream_handler.setFormatter(clg.ColoredFormatter(
-    fmt="{log_color}[{name}@{levelname}]: {message}{reset}",
-    style='{',
-    log_colors={
-        'DEBUG': 'cyan',
-        'INFO': 'green',
-        'WARNING': 'yellow',
-        'ERROR': 'red'
-    }
-))
-
-root_logger.addHandler(stream_handler)
+from egiti._logger import setup_logger
+from egiti.core import GitignoreManager
+from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
 
 
 class EGITICLI:
@@ -36,7 +16,8 @@ class EGITICLI:
         subparsers = self.argument_parser.add_subparsers(
             dest='command',
             metavar='[command]',
-            help='command to do'
+            help='command to do',
+            required=True
         )
 
         add_parser = subparsers.add_parser('add', help='add new entries to .gitignore')
@@ -61,26 +42,25 @@ class EGITICLI:
 
     def run(self) -> None | int:
         args = self.argument_parser.parse_args()
-        if args.verbose:
-            root_logger.setLevel(lg.DEBUG)
-        
-        logger = lg.getLogger('gitignore.cli')
-        
+
+        # setting up logger
+        setup_logger(verbose=args.verbose)
+        logger = lg.getLogger('egiti.cli')
+
+        # loading manager
         manager = GitignoreManager(str(args.input_file).strip())
 
+        # running command
         if args.command in ['add', 'rm']:
             args_entries = list(set(args.entries))
 
-
         if args.command == 'add':
             manager.add_entries(args_entries, args.mode)
-            logger.info('Done!')
-        
+            logger.info('Done!')        
 
         elif args.command == 'rm':
             manager.remove_entries(args_entries)
             logger.info('Done!')
-
         
         elif args.command == 'show':
             if not args.templates:
@@ -92,7 +72,6 @@ class EGITICLI:
             else:
                 print(f"available templates: {', '.join(GITIGNORE_TEMPLATES.keys())}")
 
-
         elif args.command == 'load':
             for template_name in args.templates:
                 if not template_name in GITIGNORE_TEMPLATES:
@@ -102,17 +81,9 @@ class EGITICLI:
                 logger.info(f'Loading template: {template_name}')
                 entries = load_template(template_name, with_comments=args.all)
                 manager.add_entries(entries, mode='a')
-
-        
-        else:
-            self.argument_parser.print_help()
         
 
 def run_cli():
-    try:
-        app = EGITICLI()
-        return app.run()
-    
-    except Exception as e:
-        root_logger.error(f'error: {str(e)}. cause: {str(e.__cause__)}')
+    app = EGITICLI()
+    return app.run()
         
