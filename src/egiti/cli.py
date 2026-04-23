@@ -147,7 +147,7 @@ class EGITICLI:
         setup_logger(verbose=args.verbose)
         logger = lg.getLogger('egiti.cli')
 
-        logger.debug('Debug mode enabled')
+        logger.debug('debug mode enabled')
 
 
 def run_cli():
