@@ -20,7 +20,7 @@ build-backend = "uv_build"
 egiti = "egiti.cli:run_cli"
 
 [tool.ruff]
-line-length = 88
+line-length = 100
 indent-width = 4
 target-version = "py312"
 
