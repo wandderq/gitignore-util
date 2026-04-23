@@ -3,7 +3,7 @@ from argparse import ArgumentParser
 from pathlib import Path
 
 from egiti._logger import setup_logger
-from egiti.core import GitignoreManager
+from egiti.manager import GitignoreManager
 from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
 
 
@@ -146,8 +146,40 @@ class EGITICLI:
         # setting up logger
         setup_logger(verbose=args.verbose)
         logger = lg.getLogger('egiti.cli')
-
         logger.debug('debug mode enabled')
+
+        # getting gitignore manager
+        manager = GitignoreManager(args.gitignore_path)
+
+        # running command
+        match args.command:
+            case "init":
+                logger.error("--templates do not work! (WIP)")
+                manager.init_gitignore_file(
+                    path=args.init_path,
+                    entries=args.init_entries
+                )
+            
+            case "status":
+                logger.error("WIP")
+            
+            case "add":
+                manager.add_entries(
+                    adding_entries=args.add_entries,
+                    force=args.add_force
+                )
+            
+            case "rm":
+                manager.remove_entries(
+                    removing_entries=args.rm_entries,
+                    force=args.rm_force
+                )
+            
+            case "load":
+                logger.error("WIP")
+            
+            case "show":
+                logger.error("WIP")
 
 
 def run_cli():
