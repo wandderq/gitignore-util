@@ -1,5 +1,6 @@
 import logging as lg
 from argparse import ArgumentParser
+from pathlib import Path
 
 from egiti._logger import setup_logger
 from egiti.core import GitignoreManager
@@ -9,71 +10,106 @@ from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
 class EGITICLI:
     def __init__(self) -> None:
         self.argument_parser = ArgumentParser(
-            description='A utility for easily managing gitignore files ',
-            epilog='GitHub: https://github.com/wandderq/gitignore-util'
+            description='A utility for easily managing gitignore files',
+            epilog='GitHub: https://github.com/wandderq/egiti'
         )
-
-        subparsers = self.argument_parser.add_subparsers(
-            dest='command',
-            metavar='[command]',
-            help='Available commands',
-            required=True
-        )
-
-        # global args
+        
+        # global arguments
         self.argument_parser.add_argument(
             '-v', '--verbose',
             action='store_true',
-            help='Verbose mode'
+            help='Enable verbose mode',
         )
+
         self.argument_parser.add_argument(
             '-i', '--input',
-            default='.gitignore',
-            help='Gitignore file path (default: .gitignore)'
+            type=Path,
+            default=Path.cwd() / '.gitignore',
+            dest='gitignore_path',
+            metavar='PATH',
+            help="Path to .gitignore file"
+        )
+
+        # egiti [command]
+        subparsers = self.argument_parser.add_subparsers(
+            dest='command',
+            help='Available commands',
+            required=True,
+        )
+        
+        # egiti init
+        init_parser = subparsers.add_parser(
+            'init',
+            help='Initialize a new .gitignore file'
+        )
+
+        init_parser.add_argument(
+            'init_path',
+            type=Path,
+            nargs='?',
+            help='Path to the .gitignore file (overrides --input)'
+        )
+
+        init_parser.add_argument(
+            '-t', '--templates',
+            type=str,
+            nargs='+',
+            dest='init_templates',
+            help='Load templates into the new .gitignore'
+        )
+
+        init_parser.add_argument(
+            '-e', '--entries',
+            type=str,
+            nargs='+',
+            dest='init_entries',
+            help='Add entries to the new .gitignore'
+        )
+
+        # egiti status
+        status_parser = subparsers.add_parser(  # noqa: F841
+            'status',
+            help='Show current project status based on .gitignore'
         )
 
         # egiti add
         add_parser = subparsers.add_parser(
             'add',
-            help='Add new entries to .gitignore'
+            help='Add a new entry'
         )
+
         add_parser.add_argument(
-            'entries',
+            'add_entries',
+            type=str,
             nargs='+',
-            help='Entries to add (e.g.: egiti add .venv)'
+            help='Entry'
         )
+
         add_parser.add_argument(
-            '-m', '--mode',
-            choices=['a', 'w'],
-            default='a',
-            help='File mode (default: append)'
+            '-f', '--force',
+            action='store_true',
+            dest='add_force',
+            help='Force add'
         )
 
         # egiti rm
         rm_parser = subparsers.add_parser(
             'rm',
-            help='Remove entries from .gitignore'
-        )
-        rm_parser.add_argument(
-            'entries',
-            nargs='+',
-            help='Entries to remove (e.g.: egiti rm .vscode)'
+            help='Remove an entry'
         )
 
-        # egiti show
-        show_parser = subparsers.add_parser(
-            'show',
-            help='Display all entries from .gitignore'
+        rm_parser.add_argument(
+            'rm_entries',
+            type=str,
+            nargs='+',
+            help='Entry'
         )
-        show_parser.add_argument(
-            '-a', '--all',
+
+        rm_parser.add_argument(
+            '-f', '--force',
             action='store_true',
-            help='Include comments in the output'
-        )
-        show_parser.add_argument(
-            '-t', '--templates',
-            action='store_true',
-            help='Show available templates'
+            dest='rm_force',
+            help='Force removal'
         )
 
         # egiti load
@@ -81,60 +117,38 @@ class EGITICLI:
             'load',
             help='Load .gitignore templates'
         )
+
         load_parser.add_argument(
-            'templates',
+            'load_templates',
+            type=str,
             nargs='+',
-            help='Templates to load (see egiti show -t)'
+            help='Template names'
         )
-        load_parser.add_argument(
-            '-a', '--all',
+
+        # egiti show
+        show_parser = subparsers.add_parser(
+            'show',
+            help='Show contents'
+        )
+
+        show_parser.add_argument(
+            '-c', '--comments',
             action='store_true',
-            help='Load with comments'
+            dest='show_comments',
+            help='Show with comments'
         )
+        
 
-
-    def run(self) -> None | int:
+    def run(self) -> int:
+        # parsing arguments
         args = self.argument_parser.parse_args()
 
         # setting up logger
         setup_logger(verbose=args.verbose)
         logger = lg.getLogger('egiti.cli')
 
-        # loading manager
-        manager = GitignoreManager(str(args.input_file).strip())
+        logger.debug('Debug mode enabled')
 
-        # running command
-        if args.command in ['add', 'rm']:
-            args_entries = list(set(args.entries))
-
-        if args.command == 'add':
-            manager.add_entries(args_entries, args.mode)
-            logger.info('Done!')
-
-        elif args.command == 'rm':
-            manager.remove_entries(args_entries)
-            logger.info('Done!')
-        
-        elif args.command == 'show':
-            if not args.templates:
-                entries = manager.get_entries(with_comments=args.all)
-                for i, entry in enumerate(entries, start=1):
-                    color = '\033[0m' if entry.startswith('#') else '\033[32m'
-                    print(f'{color}{i}: {entry}\033[0m', flush=True)
-            
-            else:
-                print(f"Available templates: {', '.join(GITIGNORE_TEMPLATES.keys())}")
-
-        elif args.command == 'load':
-            for template_name in args.templates:
-                if template_name not in GITIGNORE_TEMPLATES:
-                    logger.error(f'Template not found: {template_name}')
-                    continue
-
-                logger.info(f'Loading template: {template_name}')
-                entries = load_template(template_name, with_comments=args.all)
-                manager.add_entries(entries, mode='a')
-        
 
 def run_cli():
     app = EGITICLI()

@@ -11,14 +11,19 @@ def setup_logger(verbose: bool) -> None:
 
     stream_handler = lg.StreamHandler(stream=sys.stdout)
     stream_handler.setFormatter(clg.ColoredFormatter(
-        fmt="{log_color}[{name}@{levelname}]: {message}{reset}",
-        style='{',
+        fmt="{log_color}"
+            + ("[{asctime} {levelname}] " if verbose else "")
+            + "{name}: {message}{reset}",
+
         log_colors={
             'DEBUG': 'cyan',
             'INFO': 'green',
             'WARNING': 'yellow',
             'ERROR': 'red'
-        }
+        },
+        style='{',
+        datefmt="%H:%M:%S"
+
     ))
 
     logger.addHandler(stream_handler)
