@@ -2,9 +2,8 @@ import logging as lg
 from argparse import ArgumentParser
 from pathlib import Path
 
-from egiti._logger import setup_logger
-from egiti.manager import GitignoreManager
-from egiti.template_loader import GITIGNORE_TEMPLATES, load_template
+from egiti.core.gitignore import GitignoreManager
+from egiti.utils.logger import setup_logger
 
 
 class EGITICLI:
@@ -33,8 +32,7 @@ class EGITICLI:
         # egiti [command]
         subparsers = self.argument_parser.add_subparsers(
             dest='command',
-            help='Available commands',
-            required=True,
+            help='Available commands'
         )
         
         # egiti init
@@ -139,7 +137,7 @@ class EGITICLI:
         )
         
 
-    def run(self) -> int:
+    def run(self):
         # parsing arguments
         args = self.argument_parser.parse_args()
 
@@ -180,6 +178,9 @@ class EGITICLI:
             
             case "show":
                 logger.error("WIP")
+            
+            case _:
+                self.argument_parser.print_help()
 
 
 def run_cli():
