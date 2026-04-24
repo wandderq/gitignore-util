@@ -142,11 +142,6 @@ class GitignoreManager:
 
 
     def _check_gitignore_file(self):
-        # в коде везде подразумевается, что self.path - это файл
-        # поэтому тут и добавляется .gitignore
-
-        # во время выполнения CWD меняться не будет
-        # поэтому превращение относительного пути в абсолютный ничего не сломает
         self.logger.debug(f'checking .gitignore file: {self.path}')
 
         if self.path.is_dir(): self.path /= '.gitignore'
