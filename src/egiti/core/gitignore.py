@@ -12,6 +12,9 @@ class GitignoreManager:
     def init_gitignore_file(self, path: Path, entries: list[str]) -> None:
         self.logger.info('initializing a new .gitignore file')
 
+        if not path:
+            path = self.path
+
         path.parent.mkdir(parents=True, exist_ok=True)
         path.touch(exist_ok=True)
         path.write_text('\n'.join(entries) + ('\n' if entries else ''))

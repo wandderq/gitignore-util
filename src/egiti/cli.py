@@ -1,8 +1,11 @@
 import logging as lg
+import sys
 from argparse import ArgumentParser
+from itertools import chain
 from pathlib import Path
 
 from egiti.core.gitignore import GitignoreManager
+from egiti.core.templates import TemplatesManager
 from egiti.utils.logger import setup_logger
 
 
@@ -53,6 +56,7 @@ class EGITICLI:
             type=str,
             nargs='+',
             dest='init_templates',
+            default=[],
             help='Load templates into the new .gitignore'
         )
 
@@ -61,7 +65,9 @@ class EGITICLI:
             type=str,
             nargs='+',
             dest='init_entries',
+            default=[],
             help='Add entries to the new .gitignore'
+
         )
 
         # egiti status
@@ -146,29 +152,36 @@ class EGITICLI:
         logger = lg.getLogger('egiti.cli')
         logger.debug('debug mode enabled')
 
-        # getting gitignore manager
-        manager = GitignoreManager(args.gitignore_path)
+        # getting managers
+        gitignore_manager = GitignoreManager(args.gitignore_path)
+        templates_manager = TemplatesManager()
+
 
         # running command
         match args.command:
             case "init":
-                logger.error("--templates do not work! (WIP)")
-                manager.init_gitignore_file(
+                templates = [
+                    templates_manager.get_template(t_name)
+                    for t_name in args.init_templates
+                ]
+                template_entries = list(chain.from_iterable(templates))
+
+                gitignore_manager.init_gitignore_file(
                     path=args.init_path,
-                    entries=args.init_entries
+                    entries=args.init_entries + template_entries
                 )
             
             case "status":
                 logger.error("WIP")
             
             case "add":
-                manager.add_entries(
+                gitignore_manager.add_entries(
                     adding_entries=args.add_entries,
                     force=args.add_force
                 )
             
             case "rm":
-                manager.remove_entries(
+                gitignore_manager.remove_entries(
                     removing_entries=args.rm_entries,
                     force=args.rm_force
                 )
@@ -186,4 +199,6 @@ class EGITICLI:
 def run_cli():
     app = EGITICLI()
     return app.run()
-        
+
+if __name__ == '__main__':
+    sys.exit(run_cli())
