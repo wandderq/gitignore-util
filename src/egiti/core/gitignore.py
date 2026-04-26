@@ -4,9 +4,9 @@ from typing import Literal
 
 
 class GitignoreManager:
-    def __init__(self, gitignore_path: Path) -> None:
+    def __init__(self) -> None:
         self.logger = lg.getLogger('egiti.manager')
-        self.path = gitignore_path
+        self.path: Path | None = None
     
 
     def init_gitignore_file(self, path: Path, entries: list[str]) -> None:
@@ -40,7 +40,7 @@ class GitignoreManager:
                 self.logger.debug(f'skipping comment at {line_n}')
                 continue
 
-            self.logger.debug(f'adding entry: \'{line}\'')
+            self.logger.debug(f'got entry: \'{line}\'')
             entries.append(line)
         
         return entries
