@@ -128,6 +128,13 @@ def init_argument_parser():
         help='Template names'
     )
 
+    load_parser.add_argument(
+        '-f', '--force',
+        action='store_true',
+        dest='load_force',
+        help='Force load'
+    )
+
     # egiti show
     show_parser = subparsers.add_parser(
         'show',
@@ -179,7 +186,7 @@ class EGITICLI:
                 self.run_rm(args)
             
             case "load":
-                logger.error("WIP")
+                self.run_load(args)
             
             case "show":
                 logger.error("WIP")
@@ -212,6 +219,19 @@ class EGITICLI:
         self.gitignore_manager.remove_entries(
             removing_entries=args.rm_entries,
             force=args.rm_force
+        )
+    
+
+    def run_load(self, args: Namespace):
+        templates = [
+            self.templates_manager.get_template(t_name)
+            for t_name in args.load_templates
+        ]
+        templates_entries = list(chain.from_iterable(templates))
+
+        self.gitignore_manager.add_entries(
+            adding_entries=templates_entries,
+            force=args.load_force
         )
     
 
