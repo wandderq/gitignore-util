@@ -157,16 +157,17 @@ class EGITICLI:
 
         self.gitignore_manager = GitignoreManager()
         self.templates_manager = TemplatesManager()
-        
+
 
     def run(self):
         # parsing arguments
         args = self.argument_parser.parse_args()
 
-        # setting up logger
-        setup_logger(verbose=args.verbose)
-        logger = lg.getLogger('egiti.cli')
-        logger.debug('debug mode enabled')
+        # enabling verbose mode
+        self.logger = setup_logger(
+            verbose=args.verbose,
+            name='egiti.cli'
+        )
 
         # setting self.gitignore_manager.path
         self.gitignore_manager.path = args.gitignore_path
@@ -177,7 +178,7 @@ class EGITICLI:
                 self.run_init(args)
             
             case "status":
-                logger.error("WIP")
+                self.logger.error("WIP")
             
             case "add":
                 self.run_add(args)
@@ -189,7 +190,7 @@ class EGITICLI:
                 self.run_load(args)
             
             case "show":
-                logger.error("WIP")
+                self.logger.error("WIP")
             
             case _:
                 self.argument_parser.print_help()
@@ -233,7 +234,7 @@ class EGITICLI:
             adding_entries=templates_entries,
             force=args.load_force
         )
-    
+
 
 def run_cli():
     app = EGITICLI()

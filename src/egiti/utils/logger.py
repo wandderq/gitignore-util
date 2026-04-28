@@ -4,7 +4,7 @@ import sys
 import colorlog as clg
 
 
-def setup_logger(verbose: bool) -> None:
+def setup_logger(verbose: bool, name: str) -> lg.Logger:
     logger = lg.getLogger('egiti')
     logger.handlers.clear()
     logger.setLevel(lg.DEBUG if verbose else lg.INFO)
@@ -27,3 +27,4 @@ def setup_logger(verbose: bool) -> None:
     ))
 
     logger.addHandler(stream_handler)
+    return lg.getLogger(name)

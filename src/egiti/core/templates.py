@@ -30,7 +30,7 @@ class TemplatesManager:
             raise TypeError(
                 f"Templates list is not list! (type={type(templates_list)})"
             )
-
+                
         return templates_list
 
 
@@ -50,7 +50,6 @@ class TemplatesManager:
         
         return template
 
-    
 
     def _get_endpoint(self, endpoint: str) -> dict | list:
         for attempt_i in range(1, self.request_attempts + 1):
