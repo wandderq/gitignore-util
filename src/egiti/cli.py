@@ -148,6 +148,12 @@ def init_argument_parser():
         help='Show with comments'
     )
 
+    # egiti template-list
+    template_list_parser = subparsers.add_parser( # noqa: F841
+        'template-list',
+        help='Show template list'
+    )
+
     return argument_parser
 
 
@@ -191,6 +197,9 @@ class EGITICLI:
             
             case "show":
                 self.run_show(args)
+            
+            case "template-list":
+                self.run_template_list(args)
             
             case _:
                 self.argument_parser.print_help()
@@ -244,6 +253,12 @@ class EGITICLI:
         for entry_i, entry in enumerate(entries, start=1):
             color = '\033[0m' if entry.startswith('#') else '\033[32m'
             print(f"{color}{entry_i}: {entry}\033[0m")
+    
+
+    def run_template_list(self, args: Namespace):
+        template_list = self.templates_manager.get_templates_list()
+        for template in template_list:
+            print(template)
 
 
 def run_cli():
